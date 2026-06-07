@@ -46,24 +46,24 @@ const Header = ({ streak, points, completion }) => {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-whisper bg-surface/50 p-5 text-center transition hover:bg-surface">
-            <p className="text-xs uppercase tracking-[0.2em] font-medium text-steel">{t('dashboard.streak')}</p>
-            <motion.p className="mt-2 text-3xl font-bold text-accent">{roundedStreak}</motion.p>
+        <div className="flex flex-wrap sm:grid sm:grid-cols-2 gap-3 sm:gap-4 w-full xl:w-auto">
+          <div className="flex-1 min-w-[120px] rounded-2xl border border-whisper bg-surface/50 p-4 sm:p-5 text-center transition hover:bg-surface">
+            <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-medium text-steel">{t('dashboard.streak')}</p>
+            <motion.p className="mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold text-accent">{roundedStreak}</motion.p>
           </div>
-          <div className="rounded-2xl border border-whisper bg-surface/50 p-5 text-center transition hover:bg-surface">
-            <p className="text-xs uppercase tracking-[0.2em] font-medium text-steel">{t('dashboard.points')}</p>
-            <motion.p className="mt-2 text-3xl font-bold text-accent">{roundedPoints}</motion.p>
+          <div className="flex-1 min-w-[120px] rounded-2xl border border-whisper bg-surface/50 p-4 sm:p-5 text-center transition hover:bg-surface">
+            <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-medium text-steel">{t('dashboard.points')}</p>
+            <motion.p className="mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold text-accent">{roundedPoints}</motion.p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-whisper bg-surface/50 p-5 max-w-[180px] text-center transition hover:bg-surface relative overflow-hidden group">
+        <div className="w-full xl:max-w-[180px] rounded-2xl border border-whisper bg-surface/50 p-4 sm:p-5 flex items-center justify-between xl:flex-col xl:justify-center text-center transition hover:bg-surface relative overflow-hidden group">
           {/* Subtle glow effect behind the circle */}
           <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity blur-xl rounded-full" />
           
-          <p className="text-xs uppercase tracking-[0.2em] font-medium text-steel relative z-10">{t('dashboard.completion')}</p>
-          <div className="relative mx-auto mt-4 h-20 w-20">
-            <svg className="h-20 w-20 relative z-10" viewBox="0 0 100 100">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-medium text-steel relative z-10">{t('dashboard.completion')}</p>
+          <div className="relative mx-auto xl:mt-4 h-16 w-16 sm:h-20 sm:w-20">
+            <svg className="h-16 w-16 sm:h-20 sm:w-20 relative z-10" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r={radius} strokeWidth="8" className="fill-none stroke-canvas" />
               <motion.circle
                 cx="50"
