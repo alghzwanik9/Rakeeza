@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useUser } from '@clerk/clerk-react'
@@ -36,6 +36,20 @@ export function useAppData() {
     localStorage.setItem('rakeeza-theme', theme)
   }, [theme])
 
+  // Mutations (Moved up for Timer access)
+  const addTaskMutation = useMutation(api.tasks.add)
+  const toggleCompleteMutation = useMutation(api.tasks.toggleComplete)
+  const updateTaskMutation = useMutation(api.tasks.updateTask)
+  const deleteTaskMutation = useMutation(api.tasks.remove)
+
+  const addEventMutation = useMutation(api.events.add)
+  const removeEventMutation = useMutation(api.events.remove)
+
+  const updateProfileMutation = useMutation(api.profiles.initializeOrUpdateProfile)
+  const addProjectMutation = useMutation(api.profiles.addProject)
+  const removeProjectMutation = useMutation(api.profiles.removeProject)
+  const updatePointsMutation = useMutation(api.profiles.updatePoints)
+
   // --- Global Persistent Timer Logic ---
   const [selectedSprint, setSelectedSprint] = useState(() => Number(localStorage.getItem('rakeeza-timer-sprint')) || 60)
   const [selectedTaskId, setSelectedTaskId] = useState(() => localStorage.getItem('rakeeza-timer-task') || '')
@@ -61,6 +75,12 @@ export function useAppData() {
     }
   }, [])
 
+  // Keep latest timer context in a ref to avoid resetting the interval
+  const timerContextRef = useRef({ tasks, selectedTaskId, selectedSprint, points })
+  useEffect(() => {
+    timerContextRef.current = { tasks, selectedTaskId, selectedSprint, points }
+  }, [tasks, selectedTaskId, selectedSprint, points])
+
   // The actual interval ticking
   useEffect(() => {
     if (!isRunning) return
@@ -71,15 +91,35 @@ export function useAppData() {
           localStorage.removeItem('rakeeza-timer-end')
           localStorage.setItem('rakeeza-timer-running', 'false')
           
+          // Deduct time from the assigned task
+          const { tasks: currentTasks, selectedTaskId: currentTaskId, selectedSprint: currentSprint, points: currentPoints } = timerContextRef.current
+          const currentTask = currentTasks.find(t => t.id === currentTaskId)
+          
+          if (currentTask && currentTask.type === 'timed' && typeof currentTask.duration === 'number') {
+            const hoursSpent = currentSprint / 60
+            const newDuration = Math.max(0, currentTask.duration - hoursSpent)
+            
+            if (newDuration === 0) {
+              toggleCompleteMutation({ taskId: currentTask._id })
+              updatePointsMutation({ points: currentPoints + 10 })
+              setToastMessage(`تم إنجاز المهمة بالكامل: ${currentTask.title} ✨`)
+            } else {
+              updateTaskMutation({ taskId: currentTask._id, duration: newDuration })
+              setToastMessage(`تم خصم ${hoursSpent} ساعة من مهمة: ${currentTask.title} ⏱️`)
+            }
+          }
+          
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('استوديو التركيز: انتهت الجلسة!', {
-              body: 'عمل رائع! خذ قسطاً من الراحة الآن.',
+              body: currentTask ? `عمل رائع في ${currentTask.title}! خذ قسطاً من الراحة الآن.` : 'عمل رائع! خذ قسطاً من الراحة الآن.',
             })
           }
           try {
             const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
-            audio.play().catch(e => console.log('Audio play failed', e))
-          } catch (e) {}
+            audio.play().catch(err => console.log('Audio play failed', err))
+          } catch (err) {
+            console.log('Audio error', err)
+          }
           
           return 0
         }
@@ -87,7 +127,7 @@ export function useAppData() {
       })
     }, 1000)
     return () => clearInterval(interval)
-  }, [isRunning])
+  }, [isRunning, toggleCompleteMutation, updatePointsMutation, updateTaskMutation])
 
   // Save selection states
   useEffect(() => { localStorage.setItem('rakeeza-timer-sprint', selectedSprint.toString()) }, [selectedSprint])
@@ -119,19 +159,7 @@ export function useAppData() {
     }
   }
 
-  // Mutations
-  const addTaskMutation = useMutation(api.tasks.add)
-  const toggleCompleteMutation = useMutation(api.tasks.toggleComplete)
-  const updateTaskMutation = useMutation(api.tasks.updateTask)
-  const deleteTaskMutation = useMutation(api.tasks.remove)
-
-  const addEventMutation = useMutation(api.events.add)
-  const removeEventMutation = useMutation(api.events.remove)
-
-  const updateProfileMutation = useMutation(api.profiles.initializeOrUpdateProfile)
-  const addProjectMutation = useMutation(api.profiles.addProject)
-  const removeProjectMutation = useMutation(api.profiles.removeProject)
-  const updatePointsMutation = useMutation(api.profiles.updatePoints)
+  // Mutations have been moved above the Timer Logic
 
   // Profile initialization
   useEffect(() => {
