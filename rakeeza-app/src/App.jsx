@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { SignedIn, SignedOut } from "@clerk/clerk-react"
+import { SignedIn, SignedOut, ClerkLoading, ClerkLoaded } from "@clerk/clerk-react"
 
 import { useAppData } from './hooks/useAppData.jsx'
 import Navbar from './components/Navbar.jsx'
@@ -128,18 +128,25 @@ function App() {
           <Route path="/*" element={
             <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-12 xl:px-16 flex-1">
               <main className="w-full">
-                <SignedIn>
-                  <AnimatedRoutes 
-                    tasks={tasks} events={events} points={points} streak={streak} profile={profile} completion={completion}
-                    addTask={addTask} toggleComplete={toggleComplete} deleteTask={deleteTask} updateTask={updateTask}
-                    addEvent={addEvent} removeEvent={removeEvent} addProject={addProject} removeProject={removeProject}
-                    autoUpdateProfile={autoUpdateProfile} updateSocialLinks={updateSocialLinks}
-                    updateProfileDetails={updateProfileDetails} showToast={showToast}
-                  />
-                </SignedIn>
-                <SignedOut>
-                  <LandingPage />
-                </SignedOut>
+                <ClerkLoading>
+                  <div className="flex items-center justify-center min-h-[60vh] w-full">
+                    <span className="loading loading-spinner loading-lg text-primary"></span>
+                  </div>
+                </ClerkLoading>
+                <ClerkLoaded>
+                  <SignedIn>
+                    <AnimatedRoutes 
+                      tasks={tasks} events={events} points={points} streak={streak} profile={profile} completion={completion}
+                      addTask={addTask} toggleComplete={toggleComplete} deleteTask={deleteTask} updateTask={updateTask}
+                      addEvent={addEvent} removeEvent={removeEvent} addProject={addProject} removeProject={removeProject}
+                      autoUpdateProfile={autoUpdateProfile} updateSocialLinks={updateSocialLinks}
+                      updateProfileDetails={updateProfileDetails} showToast={showToast}
+                    />
+                  </SignedIn>
+                  <SignedOut>
+                    <LandingPage />
+                  </SignedOut>
+                </ClerkLoaded>
               </main>
             </div>
           } />
