@@ -2,8 +2,7 @@ import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react"
-import { Sparkles } from 'lucide-react'
+import { SignedIn, SignedOut } from "@clerk/clerk-react"
 
 import { useAppData } from './hooks/useAppData.jsx'
 import Navbar from './components/Navbar.jsx'
@@ -14,6 +13,7 @@ import Events from './components/Events.jsx'
 import Achievements from './components/Achievements.jsx'
 import Profile from './components/Profile.jsx'
 import AiAdvisor from './components/AiAdvisor.jsx'
+import LandingPage from './components/LandingPage.jsx'
 import PublicPortfolio from './pages/PublicPortfolio.jsx'
 
 const pageVariants = {
@@ -138,20 +138,7 @@ function App() {
                   />
                 </SignedIn>
                 <SignedOut>
-                  <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="mb-6 rounded-full bg-accent/10 p-6">
-                      <Sparkles className="h-12 w-12 text-accent" />
-                    </div>
-                    <h2 className="mb-4 text-3xl font-bold text-ink">Welcome to Rakeeza</h2>
-                    <p className="mb-8 max-w-md text-steel text-lg">
-                      Please sign in to access your dashboard, tasks, and personalized AI advisor.
-                    </p>
-                    <SignInButton mode="modal">
-                      <button className="rounded-xl bg-accent px-8 py-3 font-semibold text-white transition-all hover:opacity-90 active:scale-95">
-                        Get Started
-                      </button>
-                    </SignInButton>
-                  </div>
+                  <LandingPage />
                 </SignedOut>
               </main>
             </div>
