@@ -84,49 +84,66 @@ export function useAppData() {
   // The actual interval ticking
   useEffect(() => {
     if (!isRunning) return
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          setIsRunning(false)
-          localStorage.removeItem('rakeeza-timer-end')
-          localStorage.setItem('rakeeza-timer-running', 'false')
+    
+    let isFinished = false
+
+    const updateTimer = () => {
+      if (isFinished) return
+
+      const endStr = localStorage.getItem('rakeeza-timer-end')
+      if (!endStr) return
+      
+      const end = Number(endStr)
+      const remaining = Math.round((end - Date.now()) / 1000)
+      
+      if (remaining <= 0) {
+        isFinished = true
+        setIsRunning(false)
+        setSecondsLeft(0)
+        localStorage.removeItem('rakeeza-timer-end')
+        localStorage.setItem('rakeeza-timer-running', 'false')
+        
+        // Deduct time from the assigned task
+        const { tasks: currentTasks, selectedTaskId: currentTaskId, selectedSprint: currentSprint, points: currentPoints } = timerContextRef.current
+        const currentTask = currentTasks.find(t => t.id === currentTaskId)
+        
+        if (currentTask && currentTask.type === 'timed' && typeof currentTask.duration === 'number') {
+          const hoursSpent = currentSprint / 60
+          const newDuration = Math.max(0, currentTask.duration - hoursSpent)
           
-          // Deduct time from the assigned task
-          const { tasks: currentTasks, selectedTaskId: currentTaskId, selectedSprint: currentSprint, points: currentPoints } = timerContextRef.current
-          const currentTask = currentTasks.find(t => t.id === currentTaskId)
-          
-          if (currentTask && currentTask.type === 'timed' && typeof currentTask.duration === 'number') {
-            const hoursSpent = currentSprint / 60
-            const newDuration = Math.max(0, currentTask.duration - hoursSpent)
-            
-            if (newDuration === 0) {
-              toggleCompleteMutation({ taskId: currentTask._id })
-              updatePointsMutation({ points: currentPoints + 10 })
-              setToastMessage(`تم إنجاز المهمة بالكامل: ${currentTask.title} ✨`)
-            } else {
-              updateTaskMutation({ taskId: currentTask._id, duration: newDuration })
-              setToastMessage(`تم خصم ${hoursSpent} ساعة من مهمة: ${currentTask.title} ⏱️`)
-            }
+          if (newDuration === 0) {
+            toggleCompleteMutation({ taskId: currentTask._id })
+            updatePointsMutation({ points: currentPoints + 10 })
+            setToastMessage(`تم إنجاز المهمة بالكامل: ${currentTask.title} ✨`)
+          } else {
+            updateTaskMutation({ taskId: currentTask._id, duration: newDuration })
+            setToastMessage(`تم خصم ${hoursSpent} ساعة من مهمة: ${currentTask.title} ⏱️`)
           }
-          
-          if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('استوديو التركيز: انتهت الجلسة!', {
-              body: currentTask ? `عمل رائع في ${currentTask.title}! خذ قسطاً من الراحة الآن.` : 'عمل رائع! خذ قسطاً من الراحة الآن.',
-            })
-          }
-          try {
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
-            audio.play().catch(err => console.log('Audio play failed', err))
-          } catch (err) {
-            console.log('Audio error', err)
-          }
-          
-          return 0
         }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(interval)
+        
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('استوديو التركيز: انتهت الجلسة!', {
+            body: currentTask ? `عمل رائع في ${currentTask.title}! خذ قسطاً من الراحة الآن.` : 'عمل رائع! خذ قسطاً من الراحة الآن.',
+          })
+        }
+        try {
+          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+          audio.play().catch(err => console.log('Audio play failed', err))
+        } catch (err) {
+          console.log('Audio error', err)
+        }
+      } else {
+        setSecondsLeft(remaining)
+      }
+    }
+
+    const interval = setInterval(updateTimer, 1000)
+    document.addEventListener('visibilitychange', updateTimer)
+    
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', updateTimer)
+    }
   }, [isRunning, toggleCompleteMutation, updatePointsMutation, updateTaskMutation])
 
   // Save selection states
