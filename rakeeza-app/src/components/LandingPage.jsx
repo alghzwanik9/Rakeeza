@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { SignInButton } from '@clerk/clerk-react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, Target, Trophy, CalendarClock, BrainCircuit, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Target, Trophy, CalendarClock, BrainCircuit, ArrowRight, ShieldCheck, CheckCircle2, FileText, Globe } from 'lucide-react';
 
 const LandingPage = () => {
   const { i18n } = useTranslation();
@@ -22,7 +22,9 @@ const LandingPage = () => {
         { icon: <Target className="w-6 h-6 text-accent" />, title: 'Smart Task Manager', desc: 'Create checklists or time-boxed sprints to maximize your focus.' },
         { icon: <BrainCircuit className="w-6 h-6 text-accent" />, title: 'AI Advisor', desc: 'Get personalized insights and workflow optimization from your AI coach.' },
         { icon: <Trophy className="w-6 h-6 text-accent" />, title: 'Gamified Progress', desc: 'Earn points, unlock badges, and build streaks as you complete tasks.' },
-        { icon: <CalendarClock className="w-6 h-6 text-accent" />, title: 'Unified Schedule', desc: 'Plan meetings, deadlines, and review sessions in one place.' }
+        { icon: <CalendarClock className="w-6 h-6 text-accent" />, title: 'Unified Schedule', desc: 'Plan meetings, deadlines, and review sessions in one place.' },
+        { icon: <FileText className="w-6 h-6 text-accent" />, title: 'AI Resume Builder', desc: 'Automatically generate a professional resume based on your tasks and skills.' },
+        { icon: <Globe className="w-6 h-6 text-accent" />, title: 'AI Portfolio Generator', desc: 'Create a beautiful, standalone HTML portfolio page with a single click.' }
       ],
       gamificationTitle: 'Build Habits That Last',
       gamificationText: 'Turn your productivity into a rewarding journey. Watch your streak grow, unlock exclusive badges, and stay motivated every single day.',
@@ -47,7 +49,9 @@ const LandingPage = () => {
         { icon: <Target className="w-6 h-6 text-accent" />, title: 'مدير مهام ذكي', desc: 'أنشئ قوائم أو مهام محددة بوقت لزيادة تركيزك لأقصى حد.' },
         { icon: <BrainCircuit className="w-6 h-6 text-accent" />, title: 'مستشار ذكي', desc: 'احصل على رؤى مخصصة وتحسين لسير عملك من مدربك الذكي.' },
         { icon: <Trophy className="w-6 h-6 text-accent" />, title: 'تقدم محفز', desc: 'اكسب النقاط، افتح الأوسمة، وابنِ سلسلة نجاحاتك مع كل مهمة تنجزها.' },
-        { icon: <CalendarClock className="w-6 h-6 text-accent" />, title: 'جدول موحد', desc: 'خطط لاجتماعاتك والمواعيد النهائية وجلسات المراجعة في مكان واحد.' }
+        { icon: <CalendarClock className="w-6 h-6 text-accent" />, title: 'جدول موحد', desc: 'خطط لاجتماعاتك والمواعيد النهائية وجلسات المراجعة في مكان واحد.' },
+        { icon: <FileText className="w-6 h-6 text-accent" />, title: 'سيرة ذاتية بالذكاء الاصطناعي', desc: 'قم بتوليد سيرة ذاتية احترافية تلقائياً بناءً على مهامك ومهاراتك.' },
+        { icon: <Globe className="w-6 h-6 text-accent" />, title: 'محفظة أعمال ذكية', desc: 'أنشئ صفحة HTML مستقلة وجميلة لملفك الشخصي بنقرة واحدة.' }
       ],
       gamificationTitle: 'ابنِ عادات تدوم',
       gamificationText: 'حوّل إنتاجيتك إلى رحلة ممتعة. شاهد سلسلة إنجازاتك تنمو، وافتح أوسمة حصرية، وابقَ متحفزاً كل يوم.',
@@ -126,7 +130,7 @@ const LandingPage = () => {
             <p className="text-lg text-steel max-w-2xl mx-auto">{t.featuresSubtitle}</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {t.features.map((feature, idx) => (
               <motion.div 
                 key={idx}
