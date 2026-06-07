@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, Copy, ExternalLink, Trash2, Sparkles, Upload, Loader2 } from 'lucide-react'
 import { generateProfessionalResume, generateHTMLPortfolio } from '../lib/aiAdvisorHelper'
@@ -27,12 +27,23 @@ const Profile = ({ profile, tasks, events, onAutoUpdate, onAddProject, onRemoveP
   const [generatedPortfolio, setGeneratedPortfolio] = useState('')
   const [isGeneratingPortfolio, setIsGeneratingPortfolio] = useState(false)
 
-  // Sync local state when external profile changes
-  useEffect(() => {
+  // Sync local state when external profile changes without using useEffect (React best practice)
+  const [prevProfileName, setPrevProfileName] = useState(profile.name)
+  const [prevProfileTitle, setPrevProfileTitle] = useState(profile.title)
+  const [prevProfileBio, setPrevProfileBio] = useState(profile.bio)
+
+  if (profile.name !== prevProfileName) {
+    setPrevProfileName(profile.name)
     setLocalName(profile.name || '')
+  }
+  if (profile.title !== prevProfileTitle) {
+    setPrevProfileTitle(profile.title)
     setLocalTitle(profile.title || '')
+  }
+  if (profile.bio !== prevProfileBio) {
+    setPrevProfileBio(profile.bio)
     setLocalBio(profile.bio || '')
-  }, [profile.name, profile.title, profile.bio])
+  }
 
   const handleLinkChange = (e) => {
     const newLinks = { ...links, [e.target.name]: e.target.value }
