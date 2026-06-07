@@ -36,6 +36,89 @@ export function useAppData() {
     localStorage.setItem('rakeeza-theme', theme)
   }, [theme])
 
+  // --- Global Persistent Timer Logic ---
+  const [selectedSprint, setSelectedSprint] = useState(() => Number(localStorage.getItem('rakeeza-timer-sprint')) || 60)
+  const [selectedTaskId, setSelectedTaskId] = useState(() => localStorage.getItem('rakeeza-timer-task') || '')
+  const [isRunning, setIsRunning] = useState(() => localStorage.getItem('rakeeza-timer-running') === 'true')
+  const [secondsLeft, setSecondsLeft] = useState(() => {
+    const end = Number(localStorage.getItem('rakeeza-timer-end'))
+    if (end) {
+      const remaining = Math.round((end - Date.now()) / 1000)
+      if (remaining > 0) return remaining
+      
+      // Timer finished while away
+      localStorage.removeItem('rakeeza-timer-end')
+      localStorage.setItem('rakeeza-timer-running', 'false')
+      return 0
+    }
+    return Number(localStorage.getItem('rakeeza-timer-sprint') || 60) * 60
+  })
+
+  // Request Notification permission on load
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission()
+    }
+  }, [])
+
+  // The actual interval ticking
+  useEffect(() => {
+    if (!isRunning) return
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          setIsRunning(false)
+          localStorage.removeItem('rakeeza-timer-end')
+          localStorage.setItem('rakeeza-timer-running', 'false')
+          
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('استوديو التركيز: انتهت الجلسة!', {
+              body: 'عمل رائع! خذ قسطاً من الراحة الآن.',
+            })
+          }
+          try {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+            audio.play().catch(e => console.log('Audio play failed', e))
+          } catch (e) {}
+          
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [isRunning])
+
+  // Save selection states
+  useEffect(() => { localStorage.setItem('rakeeza-timer-sprint', selectedSprint.toString()) }, [selectedSprint])
+  useEffect(() => { localStorage.setItem('rakeeza-timer-task', selectedTaskId) }, [selectedTaskId])
+
+  const timerControls = {
+    selectedSprint,
+    selectedTaskId,
+    setSelectedTaskId,
+    secondsLeft,
+    isRunning,
+    startTimer: () => {
+      localStorage.setItem('rakeeza-timer-end', (Date.now() + secondsLeft * 1000).toString())
+      localStorage.setItem('rakeeza-timer-running', 'true')
+      setIsRunning(true)
+    },
+    pauseTimer: () => {
+      localStorage.removeItem('rakeeza-timer-end')
+      localStorage.setItem('rakeeza-timer-running', 'false')
+      setIsRunning(false)
+    },
+    resetTimer: (minutes) => {
+      setIsRunning(false)
+      const newSprint = minutes || selectedSprint
+      setSelectedSprint(newSprint)
+      setSecondsLeft(newSprint * 60)
+      localStorage.removeItem('rakeeza-timer-end')
+      localStorage.setItem('rakeeza-timer-running', 'false')
+    }
+  }
+
   // Mutations
   const addTaskMutation = useMutation(api.tasks.add)
   const toggleCompleteMutation = useMutation(api.tasks.toggleComplete)
@@ -207,5 +290,6 @@ export function useAppData() {
     setTheme,
     toastMessage,
     showToast,
+    timerControls,
   }
 }

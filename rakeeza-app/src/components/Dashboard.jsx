@@ -1,37 +1,36 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Header from './Header.jsx'
 
 const sprintOptions = [60, 120, 180]
 
-const Dashboard = ({ tasks, points, streak, completion }) => {
+const Dashboard = ({ tasks, points, streak, completion, timerControls }) => {
   const { t } = useTranslation()
-  const [selectedSprint, setSelectedSprint] = useState(60)
-  const [secondsLeft, setSecondsLeft] = useState(selectedSprint * 60)
-  const [isRunning, setIsRunning] = useState(false)
-  const [selectedTaskId, setSelectedTaskId] = useState('')
-
-  useEffect(() => {
-    if (!isRunning) return undefined
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          setIsRunning(false)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [isRunning])
+  const { 
+    selectedSprint, 
+    selectedTaskId, 
+    setSelectedTaskId, 
+    secondsLeft, 
+    isRunning, 
+    startTimer, 
+    pauseTimer, 
+    resetTimer 
+  } = timerControls || {}
 
   const activeTasks = useMemo(
     () => tasks.filter((task) => !task.completed).slice(0, 4),
     [tasks],
   )
 
-  const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, '0')
-  const seconds = String(secondsLeft % 60).padStart(2, '0')
+  // Default to first task if none selected but tasks exist
+  useEffect(() => {
+    if (!selectedTaskId && activeTasks.length > 0) {
+      if (setSelectedTaskId) setSelectedTaskId(activeTasks[0].id)
+    }
+  }, [activeTasks, selectedTaskId, setSelectedTaskId])
+
+  const minutes = String(Math.floor((secondsLeft || 0) / 60)).padStart(2, '0')
+  const seconds = String((secondsLeft || 0) % 60).padStart(2, '0')
 
   return (
     <section className="space-y-6">
@@ -46,7 +45,7 @@ const Dashboard = ({ tasks, points, streak, completion }) => {
             </div>
             <div className="rounded-3xl bg-accent px-5 py-3 text-white shadow-lg shadow-accent/20">
               <p className="text-xs uppercase tracking-[0.22em] text-white/80">{t('dashboard.target')}</p>
-              <p className="mt-1 text-2xl font-bold text-white">{selectedSprint / 60}h</p>
+              <p className="mt-1 text-2xl font-bold text-white">{(selectedSprint || 60) / 60}h</p>
             </div>
           </div>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 rounded-3xl border border-whisper bg-canvas/70 p-8 text-center backdrop-blur-md relative overflow-hidden">
@@ -58,8 +57,8 @@ const Dashboard = ({ tasks, points, streak, completion }) => {
                 <p className="text-xs uppercase tracking-[0.2em] text-accent font-medium mb-3">المهمة الحالية للتركيز</p>
                 <div className="relative w-full">
                   <select 
-                    value={selectedTaskId || (activeTasks[0]?.id || '')} 
-                    onChange={(e) => setSelectedTaskId(e.target.value)}
+                    value={selectedTaskId || ''} 
+                    onChange={(e) => setSelectedTaskId && setSelectedTaskId(e.target.value)}
                     className="w-full appearance-none text-center bg-surface/50 border border-whisper rounded-xl px-4 py-3 text-sm font-semibold text-ink outline-none cursor-pointer hover:border-accent transition-colors"
                     style={{ textAlignLast: 'center' }}
                   >
@@ -85,11 +84,7 @@ const Dashboard = ({ tasks, points, streak, completion }) => {
                 <button
                   key={minutesOption}
                   type="button"
-                  onClick={() => {
-                    setSelectedSprint(minutesOption)
-                    setSecondsLeft(minutesOption * 60)
-                    setIsRunning(false)
-                  }}
+                  onClick={() => resetTimer && resetTimer(minutesOption)}
                   className={`rounded-full px-5 py-2 text-sm font-medium transition ${
                     selectedSprint === minutesOption
                       ? 'bg-accent text-white shadow-lg shadow-accent/20 border border-accent'
@@ -105,7 +100,7 @@ const Dashboard = ({ tasks, points, streak, completion }) => {
               {!isRunning ? (
                 <button
                   type="button"
-                  onClick={() => setIsRunning(true)}
+                  onClick={() => startTimer && startTimer()}
                   className="flex-1 rounded-2xl bg-accent px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-accent/20 transition hover:bg-accent/90 active:scale-[0.98]"
                 >
                   ابدأ الجلسة
@@ -113,7 +108,7 @@ const Dashboard = ({ tasks, points, streak, completion }) => {
               ) : (
                 <button
                   type="button"
-                  onClick={() => setIsRunning(false)}
+                  onClick={() => pauseTimer && pauseTimer()}
                   className="flex-1 rounded-2xl bg-amber-500 px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-amber-500/20 transition hover:bg-amber-600 active:scale-[0.98]"
                 >
                   إيقاف مؤقت
@@ -122,10 +117,7 @@ const Dashboard = ({ tasks, points, streak, completion }) => {
               
               <button
                 type="button"
-                onClick={() => {
-                  setSecondsLeft(selectedSprint * 60)
-                  setIsRunning(false)
-                }}
+                onClick={() => resetTimer && resetTimer()}
                 className="rounded-2xl border border-whisper bg-surface px-6 py-4 text-sm font-semibold text-ink transition hover:bg-whisper active:scale-[0.98]"
               >
                 إعادة ضبط

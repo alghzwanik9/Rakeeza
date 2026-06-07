@@ -23,7 +23,7 @@ const pageVariants = {
 }
 const pageTransition = { type: 'spring', stiffness: 100, damping: 20 }
 
-const AnimatedRoutes = ({ tasks, points, streak, completion, events, profile, addTask, toggleComplete, deleteTask, updateTask, addEvent, removeEvent, addProject, removeProject, autoUpdateProfile, updateSocialLinks, updateProfileDetails, showToast }) => {
+const AnimatedRoutes = ({ tasks, points, streak, completion, events, profile, addTask, toggleComplete, deleteTask, updateTask, addEvent, removeEvent, addProject, removeProject, autoUpdateProfile, updateSocialLinks, updateProfileDetails, showToast, timerControls }) => {
   const location = useLocation()
   
   return (
@@ -31,7 +31,7 @@ const AnimatedRoutes = ({ tasks, points, streak, completion, events, profile, ad
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={
           <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={pageTransition}>
-            <Dashboard tasks={tasks} points={points} streak={streak} completion={completion} />
+            <Dashboard tasks={tasks} points={points} streak={streak} completion={completion} timerControls={timerControls} />
           </motion.div>
         } />
         <Route path="/tasks" element={
@@ -104,6 +104,7 @@ function App() {
     setTheme,
     toastMessage,
     showToast,
+    timerControls,
   } = useAppData()
 
   const currentLanguage = i18n.language || 'en'
@@ -141,6 +142,7 @@ function App() {
                       addEvent={addEvent} removeEvent={removeEvent} addProject={addProject} removeProject={removeProject}
                       autoUpdateProfile={autoUpdateProfile} updateSocialLinks={updateSocialLinks}
                       updateProfileDetails={updateProfileDetails} showToast={showToast}
+                      timerControls={timerControls}
                     />
                   </SignedIn>
                   <SignedOut>
