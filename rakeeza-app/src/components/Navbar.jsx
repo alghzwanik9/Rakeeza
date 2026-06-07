@@ -65,24 +65,26 @@ const Navbar = ({ theme, setTheme }) => {
         </div>
 
         {/* Main Navigation (Desktop) */}
-        <div className="hidden lg:flex items-center gap-1 bg-surface/50 p-1 rounded-2xl border border-whisper">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all active:scale-[0.98] ${
-                  isActive
-                    ? 'bg-accent/10 text-accent shadow-diffused'
-                    : 'text-steel hover:bg-white/5 hover:text-ink'
-                }`
-              }
-            >
-              <link.Icon className="h-4 w-4" />
-              <span>{t(link.labelKey)}</span>
-            </NavLink>
-          ))}
-        </div>
+        <SignedIn>
+          <div className="hidden lg:flex items-center gap-1 bg-surface/50 p-1 rounded-2xl border border-whisper">
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all active:scale-[0.98] ${
+                    isActive
+                      ? 'bg-accent/10 text-accent shadow-diffused'
+                      : 'text-steel hover:bg-white/5 hover:text-ink'
+                  }`
+                }
+              >
+                <link.Icon className="h-4 w-4" />
+                <span>{t(link.labelKey)}</span>
+              </NavLink>
+            ))}
+          </div>
+        </SignedIn>
 
         {/* Actions (Desktop) */}
         <div className="flex items-center gap-2 sm:gap-4">
@@ -188,27 +190,29 @@ const Navbar = ({ theme, setTheme }) => {
               </div>
 
               {/* Mobile Navigation Links */}
-              <div className="flex flex-col gap-1 p-4">
-                {navLinks.map((link) => (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                        isActive
-                          ? 'bg-accent/10 text-accent border border-accent/20'
-                          : 'text-steel hover:bg-white/5 hover:text-ink border border-transparent'
-                      }`
-                    }
-                  >
-                    <link.Icon className="h-5 w-5" />
-                    <span>{t(link.labelKey)}</span>
-                  </NavLink>
-                ))}
-              </div>
+              <SignedIn>
+                <div className="flex flex-col gap-1 p-4">
+                  {navLinks.map((link) => (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+                          isActive
+                            ? 'bg-accent/10 text-accent border border-accent/20'
+                            : 'text-steel hover:bg-white/5 hover:text-ink border border-transparent'
+                        }`
+                      }
+                    >
+                      <link.Icon className="h-5 w-5" />
+                      <span>{t(link.labelKey)}</span>
+                    </NavLink>
+                  ))}
+                </div>
 
-              <div className="h-px w-full bg-whisper my-2" />
+                <div className="h-px w-full bg-whisper my-2" />
+              </SignedIn>
 
               {/* Mobile Settings (Theme & Lang) */}
               <div className="flex flex-col gap-6 p-4 mt-auto mb-4">

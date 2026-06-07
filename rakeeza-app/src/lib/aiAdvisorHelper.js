@@ -93,3 +93,57 @@ IMPORTANT: Write the resume in the same language that the user used in their des
     return 'حدث خطأ أثناء توليد السيرة الذاتية. الرجاء المحاولة مرة أخرى.'
   }
 }
+
+export async function generateHTMLPortfolio(description, contextData = {}) {
+  if (!genAI) {
+    return 'عذراً، مفتاح API غير متوفر. الرجاء التأكد من إعداد ملف .env بشكل صحيح.'
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+    
+    const { profile = {} } = contextData
+    
+    const prompt = `You are an expert web developer and UI/UX designer.
+The user wants a standalone, single-file HTML portfolio page based on their profile data.
+They have requested the following style/description: "${description}"
+
+Here is the data to include:
+Name: ${profile.name || 'User'}
+Title: ${profile.title || 'Professional'}
+Bio: ${profile.bio || 'None'}
+Skills: ${profile.skills ? profile.skills.join(', ') : 'None'}
+Projects:
+${profile.projects && profile.projects.length > 0 ? profile.projects.map(p => `- ${p.name} (${p.techStack}): ${p.description}`).join('\n') : 'No projects listed.'}
+Social Links:
+GitHub: ${profile.socialLinks?.github || '#'}
+LinkedIn: ${profile.socialLinks?.linkedin || '#'}
+Email: ${profile.socialLinks?.email || '#'}
+Avatar URL: ${profile.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=default&backgroundColor=b6e3f4'}
+
+Requirements:
+- Generate a SINGLE standalone HTML file containing all CSS and JS (if any) inline or within the <style> and <script> tags.
+- Use Tailwind CSS via CDN (<script src="https://cdn.tailwindcss.com"></script>) or write beautiful custom CSS.
+- Ensure the design matches the user's requested style/description.
+- The output MUST BE ONLY valid HTML code. Do NOT wrap it in markdown code blocks (\`\`\`html). Start immediately with <!DOCTYPE html> and end with </html>.
+- Make it fully responsive, accessible, and visually stunning.
+- Include smooth scrolling and hover effects.`
+
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    let text = response.text()
+    
+    // Clean up markdown code blocks if the AI accidentally includes them
+    if (text.startsWith('\`\`\`html')) {
+      text = text.replace(/^\`\`\`html\n?/, '').replace(/\n?\`\`\`$/, '')
+    } else if (text.startsWith('\`\`\`')) {
+      text = text.replace(/^\`\`\`\n?/, '').replace(/\n?\`\`\`$/, '')
+    }
+    
+    return text.trim()
+  } catch (error) {
+    console.error("AI Portfolio Error:", error)
+    return '<div style="color: red; padding: 20px; text-align: center; font-family: sans-serif;">حدث خطأ أثناء إنشاء الصفحة. الرجاء المحاولة مرة أخرى.</div>'
+  }
+}
+

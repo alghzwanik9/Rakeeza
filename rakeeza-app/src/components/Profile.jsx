@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, Copy, ExternalLink, Trash2, Sparkles, Upload, Loader2 } from 'lucide-react'
-import { generateProfessionalResume } from '../lib/aiAdvisorHelper'
+import { generateProfessionalResume, generateHTMLPortfolio } from '../lib/aiAdvisorHelper'
 
 const Profile = ({ profile, tasks, events, onAutoUpdate, onAddProject, onRemoveProject, onUpdateSocialLinks, onUpdateProfile, showToast }) => {
   const { t } = useTranslation()
@@ -21,6 +21,11 @@ const Profile = ({ profile, tasks, events, onAutoUpdate, onAddProject, onRemoveP
   const [resumePrompt, setResumePrompt] = useState('')
   const [generatedResume, setGeneratedResume] = useState('')
   const [isGeneratingResume, setIsGeneratingResume] = useState(false)
+
+  // Portfolio builder state
+  const [portfolioPrompt, setPortfolioPrompt] = useState('')
+  const [generatedPortfolio, setGeneratedPortfolio] = useState('')
+  const [isGeneratingPortfolio, setIsGeneratingPortfolio] = useState(false)
 
   // Sync local state when external profile changes
   useEffect(() => {
@@ -111,6 +116,29 @@ const Profile = ({ profile, tasks, events, onAutoUpdate, onAddProject, onRemoveP
     if (!generatedResume) return
     navigator.clipboard.writeText(generatedResume)
     if (showToast) showToast('Resume copied to clipboard! 📋')
+  }
+
+  const handleGeneratePortfolio = async () => {
+    if (!portfolioPrompt.trim() || isGeneratingPortfolio) return
+    setIsGeneratingPortfolio(true)
+    setGeneratedPortfolio('')
+    
+    try {
+      const result = await generateHTMLPortfolio(portfolioPrompt, { profile })
+      setGeneratedPortfolio(result)
+      if (showToast) showToast('Portfolio generated successfully! ✨')
+    } catch (e) {
+      console.error("Failed to generate portfolio:", e)
+      if (showToast) showToast('Error generating portfolio.')
+    } finally {
+      setIsGeneratingPortfolio(false)
+    }
+  }
+
+  const copyPortfolio = () => {
+    if (!generatedPortfolio) return
+    navigator.clipboard.writeText(generatedPortfolio)
+    if (showToast) showToast('Portfolio HTML copied to clipboard! 📋')
   }
 
   return (
@@ -343,6 +371,64 @@ const Profile = ({ profile, tasks, events, onAutoUpdate, onAddProject, onRemoveP
               <pre className="whitespace-pre-wrap font-sans text-sm text-ink leading-relaxed max-h-[400px] overflow-y-auto custom-scrollbar">
                 {generatedResume}
               </pre>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* AI HTML Portfolio Generator Section */}
+      <div className="rounded-3xl border-2 border-secondary/20 bg-surface/80 p-6 shadow-diffused backdrop-blur-md relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -z-10 -translate-x-1/2 -translate-y-1/2"></div>
+        
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-secondary" />
+              <p className="text-sm uppercase tracking-[0.24em] text-secondary font-semibold">AI Portfolio Generator</p>
+            </div>
+            <h2 className="mt-2 text-2xl font-semibold text-ink">Generate a Standalone HTML Portfolio</h2>
+            <p className="text-steel text-sm mt-1">We'll write a complete, beautiful HTML page based on your profile.</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <textarea 
+            value={portfolioPrompt}
+            onChange={(e) => setPortfolioPrompt(e.target.value)}
+            placeholder="Describe the style you want (e.g. 'Dark mode, futuristic design, single page for a full-stack dev')"
+            rows={3}
+            className="w-full resize-none rounded-3xl border border-whisper bg-canvas/80 p-5 text-ink outline-none transition focus:border-secondary"
+          />
+          <button 
+            onClick={handleGeneratePortfolio}
+            disabled={isGeneratingPortfolio || !portfolioPrompt.trim()}
+            className="inline-flex items-center justify-center gap-2 rounded-3xl bg-secondary px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-secondary/90 disabled:opacity-50"
+          >
+            {isGeneratingPortfolio ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+            {isGeneratingPortfolio ? 'Generating Magic...' : 'Generate HTML Portfolio ✨'}
+          </button>
+        </div>
+
+        {generatedPortfolio && (
+          <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-ink">Your Custom HTML Portfolio</h3>
+              <button 
+                onClick={copyPortfolio}
+                className="inline-flex items-center gap-2 rounded-xl bg-surface px-4 py-2 text-sm font-medium text-ink border border-whisper transition hover:border-secondary"
+              >
+                <Copy className="h-4 w-4" /> Copy HTML Code
+              </button>
+            </div>
+            
+            {/* Live Preview Iframe */}
+            <div className="w-full h-[600px] rounded-3xl border-2 border-whisper overflow-hidden bg-white">
+              <iframe 
+                srcDoc={generatedPortfolio} 
+                className="w-full h-full border-none"
+                title="Portfolio Preview"
+                sandbox="allow-scripts"
+              />
             </div>
           </div>
         )}

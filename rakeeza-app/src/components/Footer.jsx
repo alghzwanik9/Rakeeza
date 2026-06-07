@@ -15,20 +15,20 @@ const Footer = () => {
             <Sparkles className="h-4 w-4 text-accent" />
             <span className="font-semibold text-ink">{t('header.brand')}</span>
           </Link>
-          <p className="text-sm text-steel">
-            © {new Date().getFullYear()} Rakeeza App. All rights reserved.
+          <p className="text-sm text-steel mt-2">
+            تم التطوير بواسطة <a href="https://github.com/alghzwanik9" target="_blank" rel="noopener noreferrer" className="font-bold text-accent hover:underline">KMG || AI</a>
           </p>
         </div>
 
         {/* Links */}
         <div className="flex items-center gap-4 text-steel">
-          <a href="#" className="transition hover:text-accent">
+          <a href="https://github.com/alghzwanik9" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent" title="GitHub">
             <Github className="h-5 w-5" />
           </a>
-          <a href="#" className="transition hover:text-accent">
+          <a href="https://github.com/alghzwanik9" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent" title="Twitter">
             <Twitter className="h-5 w-5" />
           </a>
-          <a href="#" className="transition hover:text-accent">
+          <a href="https://github.com/alghzwanik9" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent" title="LinkedIn">
             <Linkedin className="h-5 w-5" />
           </a>
         </div>
