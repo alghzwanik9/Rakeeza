@@ -1,0 +1,295 @@
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+
+const resources = {
+  en: {
+    translation: {
+      viewLabel: 'View',
+      header: {
+        brand: 'Rakeeza',
+        title: 'AI-powered productivity to achieve your goals',
+        subtitle: 'Stay ahead with smart planning, focus sprints, and project coaching.',
+        description: 'Manage tasks, meetings, and energy with a modern bilingual workflow.',
+        language: 'Language',
+        changeLanguage: 'Switch to Arabic',
+      },
+      tabs: {
+        dashboard: 'Dashboard',
+        tasks: 'Tasks',
+        events: 'Events',
+        achievements: 'Achievements',
+        profile: 'Profile',
+        advisor: 'Advisor',
+      },
+      dashboard: {
+        title: 'Focus studio',
+        subtitle: 'Countdown sprints and productivity signals tailored for your daily tasks.',
+        target: 'Target',
+        activeTasks: 'Active tasks',
+        completion: 'Completion',
+        streak: 'Streak',
+        points: 'Points',
+        topPending: 'Top pending tasks',
+        noPending: 'No pending tasks — great job!',
+      },
+      taskList: {
+        title: 'Task manager',
+        subtitle: 'Create standard checklists or time-box your work with a smart workflow.',
+        taskName: 'Task name',
+        category: 'Category',
+        taskType: 'Task type',
+        durationLabel: 'Target hours',
+        addTask: 'Add task',
+        previewTitle: 'Task preview',
+        enterTitle: 'Enter a task title',
+        completed: 'Completed',
+        open: 'Open',
+      },
+      taskCategories: {
+        study: 'Study',
+        work: 'Work',
+        meetings: 'Meetings',
+      },
+      taskTypes: {
+        standard: 'Standard',
+        timed: 'Timed',
+      },
+      events: {
+        title: 'Upcoming schedule',
+        subtitle: 'Plan meetings, interviews, and review sessions in one place.',
+        totalItems: 'Total items',
+        addEvent: 'Add event',
+        remove: 'Remove',
+      },
+      eventTypes: {
+        meeting: 'Meeting',
+        interview: 'Interview',
+        review: 'Review',
+        deadline: 'Deadline',
+      },
+      achievements: {
+        title: 'Achievements & Badges',
+        subtitle: 'Unlock badges automatically as you complete tasks and build your streak.',
+        unlocked: 'Unlocked',
+        locked: 'Locked',
+        badgeTaskCrusher: {
+          name: 'Execution Excellence',
+          description: 'Completed 5 or more tasks.',
+        },
+        badgeStreakMaster: {
+          name: 'Sustained Momentum',
+          description: 'Reached a 7-day streak.',
+        },
+        badgePointsCollector: {
+          name: 'Consistent Performer',
+          description: 'Accumulated over 100 points.',
+        },
+        badgePerfectionist: {
+          name: 'Peak Efficiency',
+          description: 'Achieved 100% task completion.',
+        },
+      },
+      profile: {
+        title: 'Portfolio studio',
+        subtitle: 'Refresh your profile, skills, and project showcase.',
+        bioLabel: 'Bio',
+        skillsLabel: 'Skills',
+        projectsLabel: 'Projects',
+        addProject: 'Add project',
+        updateProfile: 'Update profile with AI ✨',
+        newProjectTitle: 'New project title',
+        newProjectTech: 'Tech stack',
+        socialTitle: 'Social & Portfolio',
+        githubUrl: 'GitHub URL',
+        linkedinUrl: 'LinkedIn URL',
+        emailUrl: 'Email Address',
+        publicPortfolioLiveAt: 'Your Public Portfolio is live at:',
+        viewExternalProfile: 'View External Profile',
+        shuffleAvatar: 'Change Avatar',
+        namePlaceholder: 'Your Name',
+        titlePlaceholder: 'Your Title',
+        bioPlaceholder: 'Write something about yourself...',
+        skillPlaceholder: 'Type a skill and press Enter...',
+        noProjects: 'No projects yet. Add one above!',
+        deleteProject: 'Delete Project',
+        resumeBuilderTag: 'AI Resume Builder',
+        resumeBuilderTitle: 'Generate a Professional Resume',
+        resumeBuilderSubtitle: "We'll automatically include your tasks, projects, and skills.",
+        resumePromptPlaceholder: "What role are you applying for? (e.g. 'I am applying for a Junior React Developer role focusing on UI/UX at a tech startup.')",
+        generatingMagic: 'Generating Magic...',
+        generateResume: 'Generate Resume ✨',
+        customResume: 'Your Custom Resume',
+        copyText: 'Copy Text',
+      },
+      advisor: {
+        welcome: 'Hello! I’m your Smart Advisor, ready to help with your career and productivity.',
+        subtitle: 'Ask about workflow optimization, planning, or strategies.',
+        placeholder: 'Ask about tasks, planning, or emails...',
+        send: 'Send',
+        name: 'Smart Advisor',
+      },
+      emptyState: {
+        tasks: {
+          title: 'You are all caught up!',
+          description: 'You have no pending tasks. Enjoy your time or add a new challenge!'
+        },
+        events: {
+          title: 'Your schedule is empty!',
+          description: 'No upcoming events or meetings. Would you like to schedule something new?'
+        }
+      },
+    },
+  },
+  ar: {
+    translation: {
+      viewLabel: 'عرض',
+      header: {
+        brand: 'ركيزة',
+        title: 'إنتاجية مدعومة بالذكاء الاصطناعي لتحقيق أهدافك',
+        subtitle: 'ابق متقدماً مع التخطيط الذكي، وجلسات التركيز، والتوجيه المهني.',
+        description: 'إدارة المهام، الاجتماعات، والطاقة عبر تجربة ثنائية اللغة.',
+        language: 'اللغة',
+        changeLanguage: 'التبديل إلى الإنجليزية',
+      },
+      tabs: {
+        dashboard: 'الرئيسية',
+        tasks: 'المهام',
+        events: 'الأحداث',
+        achievements: 'الأوسمة',
+        profile: 'الملف',
+        advisor: 'المستشار',
+      },
+      dashboard: {
+        title: 'استوديو التركيز',
+        subtitle: 'عدّاد الجلسات وإشارات الإنتاجية المصممة لإنجاز مهامك اليومية.',
+        target: 'الهدف',
+        activeTasks: 'المهام النشطة',
+        completion: 'الإنجاز',
+        streak: 'سلسلة الأيام',
+        points: 'النقاط',
+        topPending: 'أهم المهام المعلقة',
+        noPending: 'لا توجد مهام معلقة — عمل رائع!',
+      },
+      taskList: {
+        title: 'مدير المهام',
+        subtitle: 'إنشاء قوائم أو مهام زمنية مع تجربة عمل ذكية.',
+        taskName: 'اسم المهمة',
+        category: 'الفئة',
+        taskType: 'نوع المهمة',
+        durationLabel: 'عدد الساعات',
+        addTask: 'إضافة مهمة',
+        previewTitle: 'عرض المهمة',
+        enterTitle: 'أدخل عنوان المهمة',
+        completed: 'منجزة',
+        open: 'مفتوحة',
+      },
+      taskCategories: {
+        study: 'الدراسة',
+        work: 'العمل',
+        meetings: 'الاجتماعات',
+      },
+      taskTypes: {
+        standard: 'عادية',
+        timed: 'محددة',
+      },
+      events: {
+        title: 'الجدول القادم',
+        subtitle: 'خطط الاجتماعات والمقابلات وجلسات المراجعة في مكان واحد.',
+        totalItems: 'إجمالي العناصر',
+        addEvent: 'إضافة حدث',
+        remove: 'إزالة',
+      },
+      eventTypes: {
+        meeting: 'اجتماع',
+        interview: 'مقابلة',
+        review: 'مراجعة',
+        deadline: 'موعد نهائي',
+      },
+      achievements: {
+        title: 'الإنجازات والأوسمة',
+        subtitle: 'افتح الأوسمة تلقائياً كلما أنجزت المهام وحافظت على استمراريتك.',
+        unlocked: 'مفتوح',
+        locked: 'مغلق',
+        badgeTaskCrusher: {
+          name: 'كفاءة التنفيذ',
+          description: 'أكملت 5 مهام أو أكثر.',
+        },
+        badgeStreakMaster: {
+          name: 'زخم مستمر',
+          description: 'وصلت إلى سلسلة 7 أيام متتالية.',
+        },
+        badgePointsCollector: {
+          name: 'أداء متميز',
+          description: 'جمعت أكثر من 100 نقطة.',
+        },
+        badgePerfectionist: {
+          name: 'كفاءة قصوى',
+          description: 'حققت نسبة إنجاز 100%.',
+        },
+      },
+      profile: {
+        title: 'استوديو الملف الشخصي',
+        subtitle: 'جدد ملفك الشخصي ومهاراتك وعرض مشروعك.',
+        bioLabel: 'نبذة',
+        skillsLabel: 'المهارات',
+        projectsLabel: 'المشاريع',
+        addProject: 'إضافة مشروع',
+        updateProfile: 'تحديث الملف باستخدام الذكاء الاصطناعي ✨',
+        newProjectTitle: 'عنوان المشروع الجديد',
+        newProjectTech: 'التقنيات المستخدمة',
+        socialTitle: 'الروابط والملف الخارجي',
+        githubUrl: 'رابط GitHub',
+        linkedinUrl: 'رابط LinkedIn',
+        emailUrl: 'البريد الإلكتروني',
+        publicPortfolioLiveAt: 'ملفك الخارجي متاح على الرابط:',
+        viewExternalProfile: 'عرض الملف الخارجي',
+        shuffleAvatar: 'تغيير الصورة الشخصية',
+        namePlaceholder: 'اسمك الكريم',
+        titlePlaceholder: 'المسمى الوظيفي',
+        bioPlaceholder: 'اكتب شيئاً عن نفسك...',
+        skillPlaceholder: 'اكتب مهارة واضغط Enter...',
+        noProjects: 'لا توجد مشاريع حتى الآن. أضف مشروعاً بالأعلى!',
+        deleteProject: 'حذف المشروع',
+        resumeBuilderTag: 'صانع السيرة الذاتية (AI)',
+        resumeBuilderTitle: 'إنشاء سيرة ذاتية احترافية',
+        resumeBuilderSubtitle: 'سنقوم بتضمين مهامك، مشاريعك، ومهاراتك تلقائياً.',
+        resumePromptPlaceholder: 'ما هو المسمى الوظيفي أو الهدف؟ (مثلاً: أقدم على وظيفة مطور واجهات بتخصص React في شركة تقنية)',
+        generatingMagic: 'جاري السحر والابتكار...',
+        generateResume: 'توليد السيرة الذاتية ✨',
+        customResume: 'سيرتك الذاتية المخصصة',
+        copyText: 'نسخ النص',
+      },
+      advisor: {
+        welcome: 'مرحباً! أنا المستشار الذكي، جاهز لمساعدتك في مسارك المهني وزيادة إنتاجيتك.',
+        subtitle: 'اسأل عن تحسين سير العمل، التخطيط، أو استراتيجيات الإنجاز.',
+        placeholder: 'اطرح سؤالاً عن المهام، التخطيط، أو إدارة الوقت...',
+        send: 'إرسال',
+        name: 'المستشار الذكي',
+      },
+      emptyState: {
+        tasks: {
+          title: 'أنت منجز ومستعد!',
+          description: 'ليس لديك أي مهام حالياً. استمتع بوقتك أو أضف مهمة جديدة وتحدى نفسك!'
+        },
+        events: {
+          title: 'جدولك فارغ!',
+          description: 'لا توجد أحداث أو اجتماعات قادمة. هل ترغب في جدولة شيء جديد؟'
+        }
+      },
+    },
+  },
+}
+
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'en',
+  fallbackLng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
+  react: {
+    useSuspense: false,
+  },
+})
+
+export default i18n
