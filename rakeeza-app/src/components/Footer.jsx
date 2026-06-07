@@ -1,9 +1,19 @@
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Sparkles, Github, Twitter, Linkedin } from 'lucide-react'
+import { useAppData } from '../hooks/useAppData.jsx'
 
 const Footer = () => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const { profile } = useAppData()
+  
+  const socialLinks = profile?.socialLinks || {}
+
+  const handleMissingLink = (e) => {
+    e.preventDefault()
+    navigate('/profile')
+  }
 
   return (
     <footer className="mt-12 w-full border-t border-whisper bg-canvas py-10">
@@ -22,13 +32,34 @@ const Footer = () => {
 
         {/* Links */}
         <div className="flex items-center gap-4 text-steel">
-          <a href="https://github.com/alghzwanik9" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent" title="GitHub">
+          <a 
+            href={socialLinks.github || "#"} 
+            target={socialLinks.github ? "_blank" : "_self"} 
+            rel="noopener noreferrer" 
+            className={`transition hover:text-accent ${!socialLinks.github && 'opacity-50 hover:opacity-100'}`} 
+            title={socialLinks.github ? "GitHub" : "أضف حساب GitHub من الملف الشخصي"}
+            onClick={!socialLinks.github ? handleMissingLink : undefined}
+          >
             <Github className="h-5 w-5" />
           </a>
-          <a href="https://github.com/alghzwanik9" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent" title="Twitter">
+          <a 
+            href={socialLinks.twitter || "#"} 
+            target={socialLinks.twitter ? "_blank" : "_self"} 
+            rel="noopener noreferrer" 
+            className={`transition hover:text-accent ${!socialLinks.twitter && 'opacity-50 hover:opacity-100'}`} 
+            title={socialLinks.twitter ? "Twitter" : "أضف حساب Twitter من الملف الشخصي"}
+            onClick={!socialLinks.twitter ? handleMissingLink : undefined}
+          >
             <Twitter className="h-5 w-5" />
           </a>
-          <a href="https://github.com/alghzwanik9" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent" title="LinkedIn">
+          <a 
+            href={socialLinks.linkedin || "#"} 
+            target={socialLinks.linkedin ? "_blank" : "_self"} 
+            rel="noopener noreferrer" 
+            className={`transition hover:text-accent ${!socialLinks.linkedin && 'opacity-50 hover:opacity-100'}`} 
+            title={socialLinks.linkedin ? "LinkedIn" : "أضف حساب LinkedIn من الملف الشخصي"}
+            onClick={!socialLinks.linkedin ? handleMissingLink : undefined}
+          >
             <Linkedin className="h-5 w-5" />
           </a>
         </div>

@@ -8,7 +8,7 @@ const Profile = ({ profile, tasks, events, onAutoUpdate, onAddProject, onRemoveP
   const [projectName, setProjectName] = useState('')
   const [projectTech, setProjectTech] = useState('React / AI')
   
-  const socialLinks = profile.socialLinks || { linkedin: '', github: '', email: '' }
+  const socialLinks = profile.socialLinks || { linkedin: '', github: '', twitter: '', email: '' }
   const [links, setLinks] = useState(socialLinks)
 
   // Local state for seamless editing
@@ -29,11 +29,8 @@ const Profile = ({ profile, tasks, events, onAutoUpdate, onAddProject, onRemoveP
 
   // Sync local state when external profile changes
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalName(profile.name || '')
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalTitle(profile.title || '')
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalBio(profile.bio || '')
   }, [profile.name, profile.title, profile.bio])
 
@@ -236,6 +233,7 @@ const Profile = ({ profile, tasks, events, onAutoUpdate, onAddProject, onRemoveP
         <div className="grid gap-6 sm:grid-cols-2">
           <div className="space-y-4">
             <input name="github" value={links.github} onChange={handleLinkChange} placeholder={t('profile.githubUrl', 'GitHub URL')} className="w-full rounded-2xl border border-whisper bg-canvas px-4 py-3 text-sm text-ink outline-none focus:border-accent" />
+            <input name="twitter" value={links.twitter || ''} onChange={handleLinkChange} placeholder={t('profile.twitterUrl', 'Twitter URL')} className="w-full rounded-2xl border border-whisper bg-canvas px-4 py-3 text-sm text-ink outline-none focus:border-accent" />
             <input name="linkedin" value={links.linkedin} onChange={handleLinkChange} placeholder={t('profile.linkedinUrl', 'LinkedIn URL')} className="w-full rounded-2xl border border-whisper bg-canvas px-4 py-3 text-sm text-ink outline-none focus:border-accent" />
             <input name="email" value={links.email} onChange={handleLinkChange} placeholder={t('profile.emailUrl', 'Email Address')} className="w-full rounded-2xl border border-whisper bg-canvas px-4 py-3 text-sm text-ink outline-none focus:border-accent" />
           </div>

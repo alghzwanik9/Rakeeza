@@ -134,10 +134,10 @@ Requirements:
     let text = response.text()
     
     // Clean up markdown code blocks if the AI accidentally includes them
-    if (text.startsWith('\`\`\`html')) {
-      text = text.replace(/^\`\`\`html\n?/, '').replace(/\n?\`\`\`$/, '')
-    } else if (text.startsWith('\`\`\`')) {
-      text = text.replace(/^\`\`\`\n?/, '').replace(/\n?\`\`\`$/, '')
+    if (text.startsWith('```html')) {
+      text = text.replace(/^```html\n?/, '').replace(/\n?```$/, '')
+    } else if (text.startsWith('```')) {
+      text = text.replace(/^```\n?/, '').replace(/\n?```$/, '')
     }
     
     return text.trim()
