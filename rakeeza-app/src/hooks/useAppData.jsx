@@ -78,26 +78,43 @@ export function useAppData() {
           duration: task.duration,
           completed: false
       })
+      .then(() => showToast('تمت إضافة المهمة بنجاح! ✨'))
+      .catch((error) => {
+          console.error("Add task error:", error);
+          showToast('حدث خطأ أثناء الإضافة: ' + error.message);
+      })
   }
 
   const toggleComplete = async (taskId) => {
     const task = tasks.find((item) => item.id === taskId)
     if (!task) return
 
-    await toggleCompleteMutation({ taskId: task._id })
-    
-    const delta = !task.completed ? (task.type === 'timed' ? 10 : 5) : -(task.type === 'timed' ? 10 : 5)
-    const newPoints = Math.max(0, points + delta)
-    updatePointsMutation({ points: newPoints })
+    try {
+      await toggleCompleteMutation({ taskId: task._id })
+      
+      const delta = !task.completed ? (task.type === 'timed' ? 10 : 5) : -(task.type === 'timed' ? 10 : 5)
+      const newPoints = Math.max(0, points + delta)
+      updatePointsMutation({ points: newPoints })
 
-    if (!task.completed) {
-      showToast(`Task completed: ${task.title} ✨`)
+      if (!task.completed) {
+        showToast(`Task completed: ${task.title} ✨`)
+      }
+    } catch (error) {
+      console.error("Toggle complete error:", error);
+      showToast('حدث خطأ: ' + error.message);
     }
   }
 
   const deleteTask = (taskId) => {
     const task = tasks.find((item) => item.id === taskId)
-    if (task) deleteTaskMutation({ taskId: task._id })
+    if (task) {
+      deleteTaskMutation({ taskId: task._id })
+      .then(() => showToast('تم حذف المهمة.'))
+      .catch((error) => {
+          console.error("Delete task error:", error);
+          showToast('حدث خطأ أثناء الحذف: ' + error.message);
+      })
+    }
   }
 
   const updateDuration = (taskId, newDuration) => {
