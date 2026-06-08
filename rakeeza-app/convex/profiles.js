@@ -128,3 +128,28 @@ export const updatePoints = mutation({
     }
   },
 });
+
+export const updateTimer = mutation({
+  args: {
+    timer: v.object({
+      endTime: v.optional(v.number()),
+      timeLeft: v.optional(v.number()),
+      isRunning: v.boolean(),
+      selectedSprint: v.number(),
+      selectedTaskId: v.string(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthenticated");
+
+    const profile = await ctx.db
+      .query("profiles")
+      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+      .first();
+
+    if (profile) {
+      await ctx.db.patch(profile._id, { timer: args.timer });
+    }
+  },
+});

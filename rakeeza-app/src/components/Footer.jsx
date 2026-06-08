@@ -1,7 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
-import { Sparkles, Github, Twitter, Linkedin } from 'lucide-react'
+import { Sparkles, Github, Linkedin } from 'lucide-react'
 import { useAppData } from '../hooks/useAppData.jsx'
+
+const XLogo = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+)
 
 const Footer = () => {
   const { t } = useTranslation()
@@ -47,10 +53,10 @@ const Footer = () => {
             target={socialLinks.twitter ? "_blank" : "_self"} 
             rel="noopener noreferrer" 
             className={`transition hover:text-accent ${!socialLinks.twitter && 'opacity-50 hover:opacity-100'}`} 
-            title={socialLinks.twitter ? "Twitter" : "أضف حساب Twitter من الملف الشخصي"}
+            title={socialLinks.twitter ? "X" : "أضف حساب X من الملف الشخصي"}
             onClick={!socialLinks.twitter ? handleMissingLink : undefined}
           >
-            <Twitter className="h-5 w-5" />
+            <XLogo className="h-5 w-5" />
           </a>
           <a 
             href={socialLinks.linkedin || "#"} 

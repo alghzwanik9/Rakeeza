@@ -51,22 +51,40 @@ export function useAppData() {
   const updatePointsMutation = useMutation(api.profiles.updatePoints)
 
   // --- Global Persistent Timer Logic ---
-  const [selectedSprint, setSelectedSprint] = useState(() => Number(localStorage.getItem('rakeeza-timer-sprint')) || 60)
-  const [selectedTaskId, setSelectedTaskId] = useState(() => localStorage.getItem('rakeeza-timer-task') || '')
-  const [isRunning, setIsRunning] = useState(() => localStorage.getItem('rakeeza-timer-running') === 'true')
-  const [secondsLeft, setSecondsLeft] = useState(() => {
-    const end = Number(localStorage.getItem('rakeeza-timer-end'))
-    if (end) {
-      const remaining = Math.round((end - Date.now()) / 1000)
-      if (remaining > 0) return remaining
-      
-      // Timer finished while away
-      localStorage.removeItem('rakeeza-timer-end')
-      localStorage.setItem('rakeeza-timer-running', 'false')
-      return 0
-    }
-    return Number(localStorage.getItem('rakeeza-timer-sprint') || 60) * 60
-  })
+  const updateTimerMutation = useMutation(api.profiles.updateTimer)
+
+  const [selectedSprint, setSelectedSprint] = useState(60)
+  const [selectedTaskId, setSelectedTaskId] = useState('')
+  const [isRunning, setIsRunning] = useState(false)
+  const [endTime, setEndTime] = useState(null)
+  const [secondsLeft, setSecondsLeft] = useState(60 * 60)
+
+  // Sync from backend
+  useEffect(() => {
+    // Run asynchronously to avoid React strict cascading render warnings
+    const timeoutId = setTimeout(() => {
+      if (profile?.timer) {
+        if (profile.timer.selectedSprint !== undefined) setSelectedSprint(profile.timer.selectedSprint)
+        if (profile.timer.selectedTaskId !== undefined) setSelectedTaskId(profile.timer.selectedTaskId)
+        if (profile.timer.isRunning !== undefined) setIsRunning(profile.timer.isRunning)
+        setEndTime(profile.timer.endTime || null)
+        
+        if (!profile.timer.isRunning) {
+          if (profile.timer.timeLeft !== undefined) {
+            setSecondsLeft(profile.timer.timeLeft)
+          } else {
+            setSecondsLeft((profile.timer.selectedSprint || 60) * 60)
+          }
+        }
+      } else {
+        // Fallback for new profiles
+        const localSprint = Number(localStorage.getItem('rakeeza-timer-sprint')) || 60
+        setSelectedSprint(localSprint)
+        setSecondsLeft(localSprint * 60)
+      }
+    }, 0)
+    return () => clearTimeout(timeoutId)
+  }, [profile?.timer])
 
   // Request Notification permission on load
   useEffect(() => {
@@ -76,10 +94,10 @@ export function useAppData() {
   }, [])
 
   // Keep latest timer context in a ref to avoid resetting the interval
-  const timerContextRef = useRef({ tasks, selectedTaskId, selectedSprint, points })
+  const timerContextRef = useRef({ tasks, selectedTaskId, selectedSprint, points, endTime })
   useEffect(() => {
-    timerContextRef.current = { tasks, selectedTaskId, selectedSprint, points }
-  }, [tasks, selectedTaskId, selectedSprint, points])
+    timerContextRef.current = { tasks, selectedTaskId, selectedSprint, points, endTime }
+  }, [tasks, selectedTaskId, selectedSprint, points, endTime])
 
   // The actual interval ticking
   useEffect(() => {
@@ -90,21 +108,30 @@ export function useAppData() {
     const updateTimer = () => {
       if (isFinished) return
 
-      const endStr = localStorage.getItem('rakeeza-timer-end')
-      if (!endStr) return
+      const currentEndTime = timerContextRef.current.endTime
+      if (!currentEndTime) return
       
-      const end = Number(endStr)
-      const remaining = Math.round((end - Date.now()) / 1000)
+      const remaining = Math.round((currentEndTime - Date.now()) / 1000)
       
       if (remaining <= 0) {
         isFinished = true
         setIsRunning(false)
         setSecondsLeft(0)
-        localStorage.removeItem('rakeeza-timer-end')
-        localStorage.setItem('rakeeza-timer-running', 'false')
+        setEndTime(null)
+        
+        const { tasks: currentTasks, selectedTaskId: currentTaskId, selectedSprint: currentSprint, points: currentPoints } = timerContextRef.current
+        
+        updateTimerMutation({
+          timer: {
+            endTime: undefined,
+            timeLeft: 0,
+            isRunning: false,
+            selectedSprint: currentSprint,
+            selectedTaskId: currentTaskId
+          }
+        }).catch(console.error)
         
         // Deduct time from the assigned task
-        const { tasks: currentTasks, selectedTaskId: currentTaskId, selectedSprint: currentSprint, points: currentPoints } = timerContextRef.current
         const currentTask = currentTasks.find(t => t.id === currentTaskId)
         
         if (currentTask && currentTask.type === 'timed' && typeof currentTask.duration === 'number') {
@@ -144,35 +171,69 @@ export function useAppData() {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', updateTimer)
     }
-  }, [isRunning, toggleCompleteMutation, updatePointsMutation, updateTaskMutation])
-
-  // Save selection states
-  useEffect(() => { localStorage.setItem('rakeeza-timer-sprint', selectedSprint.toString()) }, [selectedSprint])
-  useEffect(() => { localStorage.setItem('rakeeza-timer-task', selectedTaskId) }, [selectedTaskId])
+  }, [isRunning, toggleCompleteMutation, updatePointsMutation, updateTaskMutation, updateTimerMutation])
 
   const timerControls = {
     selectedSprint,
     selectedTaskId,
-    setSelectedTaskId,
-    secondsLeft,
+    setSelectedTaskId: (id) => {
+      setSelectedTaskId(id)
+      updateTimerMutation({
+        timer: {
+          endTime: endTime || undefined,
+          timeLeft: isRunning ? undefined : secondsLeft,
+          isRunning,
+          selectedSprint,
+          selectedTaskId: id
+        }
+      }).catch(console.error)
+    },
+    secondsLeft: secondsLeft,
     isRunning,
     startTimer: () => {
-      localStorage.setItem('rakeeza-timer-end', (Date.now() + secondsLeft * 1000).toString())
-      localStorage.setItem('rakeeza-timer-running', 'true')
+      const newEndTime = Date.now() + secondsLeft * 1000
+      setEndTime(newEndTime)
       setIsRunning(true)
+      updateTimerMutation({
+        timer: {
+          endTime: newEndTime,
+          timeLeft: undefined,
+          isRunning: true,
+          selectedSprint,
+          selectedTaskId
+        }
+      }).catch(console.error)
     },
     pauseTimer: () => {
-      localStorage.removeItem('rakeeza-timer-end')
-      localStorage.setItem('rakeeza-timer-running', 'false')
+      const remaining = isRunning && endTime ? Math.max(0, Math.round((endTime - Date.now()) / 1000)) : secondsLeft
+      setEndTime(null)
       setIsRunning(false)
+      setSecondsLeft(remaining)
+      updateTimerMutation({
+        timer: {
+          endTime: undefined,
+          timeLeft: remaining,
+          isRunning: false,
+          selectedSprint,
+          selectedTaskId
+        }
+      }).catch(console.error)
     },
     resetTimer: (minutes) => {
-      setIsRunning(false)
       const newSprint = minutes || selectedSprint
+      setIsRunning(false)
+      setEndTime(null)
       setSelectedSprint(newSprint)
       setSecondsLeft(newSprint * 60)
-      localStorage.removeItem('rakeeza-timer-end')
-      localStorage.setItem('rakeeza-timer-running', 'false')
+      updateTimerMutation({
+        timer: {
+          endTime: undefined,
+          timeLeft: newSprint * 60,
+          isRunning: false,
+          selectedSprint: newSprint,
+          selectedTaskId
+        }
+      }).catch(console.error)
     }
   }
 

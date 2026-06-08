@@ -52,5 +52,14 @@ export default defineSchema({
     ),
     points: v.optional(v.number()),
     streak: v.optional(v.number()),
+    timer: v.optional(
+      v.object({
+        endTime: v.optional(v.number()),
+        timeLeft: v.optional(v.number()),
+        isRunning: v.boolean(),
+        selectedSprint: v.number(),
+        selectedTaskId: v.string(),
+      })
+    ),
   }).index("by_user", ["userId"]),
 });

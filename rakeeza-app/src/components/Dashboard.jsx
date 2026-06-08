@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Header from './Header.jsx'
 
@@ -16,6 +16,9 @@ const Dashboard = ({ tasks, points, streak, completion, timerControls }) => {
     pauseTimer, 
     resetTimer 
   } = timerControls || {}
+
+  const [customHours, setCustomHours] = useState('')
+  const [customMinutes, setCustomMinutes] = useState('')
 
   const activeTasks = useMemo(
     () => tasks.filter((task) => !task.completed).slice(0, 4),
@@ -45,7 +48,9 @@ const Dashboard = ({ tasks, points, streak, completion, timerControls }) => {
             </div>
             <div className="rounded-3xl bg-accent px-5 py-3 text-white shadow-lg shadow-accent/20">
               <p className="text-xs uppercase tracking-[0.22em] text-white/80">{t('dashboard.target')}</p>
-              <p className="mt-1 text-2xl font-bold text-white">{(selectedSprint || 60) / 60}h</p>
+              <p className="mt-1 text-2xl font-bold text-white">
+                {Math.floor((selectedSprint || 60) / 60)}h {((selectedSprint || 60) % 60) > 0 ? `${(selectedSprint || 60) % 60}m` : ''}
+              </p>
             </div>
           </div>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 rounded-3xl border border-whisper bg-canvas/70 p-8 text-center backdrop-blur-md relative overflow-hidden">
@@ -79,21 +84,62 @@ const Dashboard = ({ tasks, points, streak, completion, timerControls }) => {
             
             <div className="z-10 text-6xl font-bold text-ink tracking-tight drop-shadow-sm font-mono mt-2">{minutes}:{seconds}</div>
             
-            <div className="z-10 mt-6 flex flex-wrap items-center justify-center gap-2">
-              {sprintOptions.map((minutesOption) => (
+            <div className="z-10 mt-6 flex flex-col items-center justify-center gap-4 w-full">
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {sprintOptions.map((minutesOption) => (
+                  <button
+                    key={minutesOption}
+                    type="button"
+                    onClick={() => {
+                      if (resetTimer) resetTimer(minutesOption)
+                      setCustomHours('')
+                      setCustomMinutes('')
+                    }}
+                    className={`rounded-full px-5 py-2 text-sm font-medium transition ${
+                      selectedSprint === minutesOption
+                        ? 'bg-accent text-white shadow-lg shadow-accent/20 border border-accent'
+                        : 'bg-surface border border-whisper text-steel hover:bg-white/5 hover:text-ink'
+                    }`}
+                  >
+                    {minutesOption / 60}h
+                  </button>
+                ))}
+              </div>
+              
+              <div className="flex items-center gap-2 bg-surface/50 p-2 rounded-2xl border border-whisper w-full max-w-sm justify-center">
+                <input 
+                  type="number" 
+                  min="0"
+                  placeholder="ساعة" 
+                  value={customHours}
+                  onChange={(e) => setCustomHours(e.target.value)}
+                  className="w-20 rounded-xl border border-whisper bg-surface px-3 py-2 text-sm text-center outline-none focus:border-accent text-ink"
+                />
+                <span className="text-steel">:</span>
+                <input 
+                  type="number" 
+                  min="0"
+                  max="59"
+                  placeholder="دقيقة" 
+                  value={customMinutes}
+                  onChange={(e) => setCustomMinutes(e.target.value)}
+                  className="w-20 rounded-xl border border-whisper bg-surface px-3 py-2 text-sm text-center outline-none focus:border-accent text-ink"
+                />
                 <button
-                  key={minutesOption}
                   type="button"
-                  onClick={() => resetTimer && resetTimer(minutesOption)}
-                  className={`rounded-full px-5 py-2 text-sm font-medium transition ${
-                    selectedSprint === minutesOption
-                      ? 'bg-accent text-white shadow-lg shadow-accent/20 border border-accent'
-                      : 'bg-surface border border-whisper text-steel hover:bg-white/5 hover:text-ink'
-                  }`}
+                  onClick={() => {
+                    const hrs = parseInt(customHours) || 0
+                    const mins = parseInt(customMinutes) || 0
+                    const totalMins = hrs * 60 + mins
+                    if (totalMins > 0 && resetTimer) {
+                      resetTimer(totalMins)
+                    }
+                  }}
+                  className="mr-2 rounded-xl bg-ink px-4 py-2 text-sm font-medium text-canvas transition hover:bg-ink/80"
                 >
-                  {minutesOption / 60}h
+                  تعيين
                 </button>
-              ))}
+              </div>
             </div>
             
             <div className="z-10 mt-4 flex flex-col gap-3 sm:flex-row sm:justify-center w-full max-w-sm">
